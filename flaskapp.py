@@ -1,15 +1,38 @@
 import collections
+import functools
 import sqlite3
 import urlparse
 import time
 
 import feedformatter
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, Response
 
 from modtasty import ModTasty
 
 app = Flask(__name__)
 mt = ModTasty()
+
+# Authentication wrapping
+####################################################################
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not mt.check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+# Flask app proper
+####################################################################
 
 @app.route('/')
 def index():
@@ -19,6 +42,7 @@ def index():
     return render_template("index.html", links=links)
 
 @app.route('/add', methods=['GET', 'POST'])
+@requires_auth
 def add_link():
     if request.method == "GET":
         return render_template("add.html")
@@ -34,6 +58,7 @@ def view_link(link_id):
     return render_template("view.html", link=link)
 
 @app.route('/edit/<int:link_id>', methods=["GET", "POST"])
+@requires_auth
 def edit_link(link_id):
     link = mt.get_link_by_id(link_id)
     if request.method == "GET":
@@ -46,6 +71,7 @@ def edit_link(link_id):
         return redirect(url_for("view_link", link_id=link.id))
 
 @app.route('/del/<int:link_id>', methods=["GET", "POST"])
+@requires_auth
 def delete_link(link_id):
     link = mt.get_link_by_id(link_id)
     if request.method == "GET":
