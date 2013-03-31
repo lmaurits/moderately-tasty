@@ -5,5 +5,7 @@
 <p>Recently added links:</p>
 
 {% include "link_list.html" %}
+{% else %}
+<p>There are no links in the database yet.  <a href="{{ url_for("add_link") }}">Get started!</a></p>
 {% endif %}
 {% endblock %}

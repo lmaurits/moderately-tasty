@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{% if tags_counts %}
 <p>Viewing all tags.</p>
 
 <div class="tag-list">
@@ -17,5 +18,8 @@
 {% endfor %}
 </ol>
 </div>
+{% else %}
+<p>There are currently no tags in the database.</p>
+{% endif %}
 
 {% endblock %}
