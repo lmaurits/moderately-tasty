@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<form action="/add" method="post">
+<form action="{{ url_for("add_link") }}" method="post">
 	<fieldset>
 		<legend>Adding new link</legend>
 		
