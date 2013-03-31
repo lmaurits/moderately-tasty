@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<p>Really delete link: {{ link.title }}?</p>
 
 <form action="{{ url_for("delete_link", link_id=link.id) }}" method="post">
-<input type="submit" value="Delete">
+<legend>Really delete link: {{ link.title }}?</legend>
+<input class="formbutton" type="submit" value="Delete">
 </form> 
 {% endblock %}

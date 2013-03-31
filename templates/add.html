@@ -1,10 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>Add a link</h1>
 
 <form action="/add" method="post">
-URL: <input type="text" name="url">
-<input type="submit" value="Add">
+	<fieldset>
+		<legend>Adding new link</legend>
+		
+		<label><b>URL</b>
+			<input type="text" name="title" >
+		</label>
+	</fieldset>
+	<input class="formbutton" type="submit" value="Add">
 </form> 
 
 {% endblock %}

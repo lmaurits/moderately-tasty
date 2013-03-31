@@ -47,6 +47,10 @@ div#nav ul li a:hover {
 	color: white;
 }
 
+div#content {
+	margin-top: 10px;
+}
+
 div.tag-list ol {
 	list-style-type: none;
 	margin: 0;
@@ -75,12 +79,12 @@ div.link-list ol li span.link-domain {
 div.link-list ol li span.link-datetime {
 	font-size: small;
 }
-span.command-button {
+span.command-button, input.formbutton {
 	float: right;
 	padding: 5px;
 }
 
-span.command-button a {
+span.command-button a, input.formbutton {
     background:#eee;
     text-decoration:none;
     color:#333;
@@ -90,17 +94,23 @@ span.command-button a {
     padding:3px 5px;
     border:1px solid #aaa;
     border-radius:3px;
-    cursor:default;
+    cursor:pointer;
 }
 
-span.command-button a:hover {
+span.command-button a:hover, input.formbutton:hover {
     background-color:#f2f2f2;
     border-color:#888;
     box-shadow:0 0 2px #ccc;
 }
 
-span.command-button a:active {
-    vertical-align:-1px;
+form {
+	padding: 10px;
+	overflow: auto;
+	background: #FAFAFA;
+}
+
+form fieldset {
+	border: none;
 }
 
 form label {
