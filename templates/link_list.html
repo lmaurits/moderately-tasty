@@ -1,0 +1,16 @@
+<div class="link-list">
+<ol>
+{% for link in links %}
+<li><span class="link-title"><a href="{{ link.url }}">{{ link.prettytitle() }}</a></span><br>
+<span class="link-domain">{{ link.domain() }}</span>
+<span class="link-datetime">(added {{ link.datetime() }})</span><br>
+Tags: 
+{% for tag in link.tags %}
+<a href="{{ url_for("list_tag", tag_name=tag) }}">{{ tag }}</a>
+{% endfor %}
+<span class="command-button"> <a href="{{ url_for("delete_link", link_id=link.id) }}">delete</a></span>
+<span class="command-button"><a href="{{ url_for("edit_link", link_id=link.id)}}">edit</a></span>
+</li>
+{% endfor %}
+</ol>
+</div>

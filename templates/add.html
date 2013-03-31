@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Add a link</h1>
+
+<form action="/add" method="post">
+URL: <input type="text" name="url">
+<input type="submit" value="Add">
+</form> 
+
+{% endblock %}

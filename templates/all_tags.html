@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<p>Viewing all tags.</p>
+
+<div class="tag-list">
+<ol>
+{% for tag, count in tags_counts %}
+<li>
+<a href="{{ url_for("list_tag", tag_name=tag) }}">{{ tag }}</a>
+{% if count==1 %}
+({{count}} link)
+{% else %}
+({{count}} links)
+{% endif %}
+</li>
+{% endfor %}
+</ol>
+</div>
+
+{% endblock %}

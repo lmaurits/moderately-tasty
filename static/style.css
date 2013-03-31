@@ -1,0 +1,139 @@
+body {
+	font-family: "sans-serif";
+	background: 		#FBB117;
+}
+
+div#container {
+	background: white;
+	width: 800px;
+	margin: auto;
+	padding: 10px;
+}
+
+div#header h1 {
+	margin: 0px;
+	font-family: 'Roboto Condensed', sans-serif;
+	padding-bottom: 10px;
+}
+
+div#nav  {
+	border-top: 3px solid #FBB117;
+	border-bottom: 3px solid #FBB117;
+}
+
+div#nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0.5em;
+}
+
+div#nav ul li {
+	display: inline;
+	padding: 0.5em;
+}
+
+div#nav ul li:hover {
+	background: #FBB117;
+}
+
+div#nav ul li a {
+	padding: 0.5em;
+	color: #FBB117;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+div#nav ul li a:hover {
+	color: white;
+}
+
+div.tag-list ol {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+div.link-list ol {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+div.link-list ol li {
+	padding: 1em;
+	border-bottom: 1px solid #EBDDE2;
+}
+
+div.link-list ol li:hover {
+	background: #FAFAFA;
+}
+
+div.link-list ol li span.link-domain {
+	font-size: small;
+	color: gray;
+}
+
+div.link-list ol li span.link-datetime {
+	font-size: small;
+}
+span.command-button {
+	float: right;
+	padding: 5px;
+}
+
+span.command-button a {
+    background:#eee;
+    text-decoration:none;
+    color:#333;
+    font-family:inherit;
+    font-size:11px;
+    font-weight:bold;
+    padding:3px 5px;
+    border:1px solid #aaa;
+    border-radius:3px;
+    cursor:default;
+}
+
+span.command-button a:hover {
+    background-color:#f2f2f2;
+    border-color:#888;
+    box-shadow:0 0 2px #ccc;
+}
+
+span.command-button a:active {
+    vertical-align:-1px;
+}
+
+form label {
+	display: block;
+	float: left;
+	clear: left;
+	margin: 10px 0;
+}
+
+form label b {
+	display: block;
+	float: left;
+	width: 80px;
+	margin-right: 20px;
+}
+
+form label input,
+form label textarea,
+form label select {
+	float: left;
+	width: 500px;
+}
+
+form label input[type="radio"],
+form label input[type="checkbox"] {
+	width: 20px;
+}
+
+form p {
+	clear: left;
+	margin: 10px 0 0;
+}
+
+form input[type="submit"] {
+	margin-left: 100px;
+}

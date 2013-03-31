@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+
+{% if links %}
+<p>Recently added links:</p>
+
+{% include "link_list.html" %}
+{% endif %}
+{% endblock %}

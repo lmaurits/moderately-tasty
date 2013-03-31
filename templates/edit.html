@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<form action="{{ url_for("edit_link", link_id=link.id) }}" method="post">
+	<fieldset>
+		<legend>Editing link</legend>
+		
+		<label><b>Title</b>
+			<input type="text" name="title" value="{{ link.title}}">
+		</label>
+	
+		<label><b>URL</b>
+			<input type="text" name="url" value="{{ link.url}}">
+		</label>	
+
+		<label><b>Tags</b>
+			<input type="text" name="tags" value="{{ ", ".join(link.tags)}}">
+		</label>	
+	</fieldset>
+
+	<input type="submit" value="Save">
+</form>
+
+{% if tags %}
+Previously used tags:
+{% for tag in tags %}
+{{tag}}, 
+{% endfor %}
+{% endif %}
+{% endblock %}

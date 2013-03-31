@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+
+{% if links %}
+<p>Links tagged with {{tag}}</p>
+
+{% include "link_list.html" %}
+{% endif %}
+{% endblock %}

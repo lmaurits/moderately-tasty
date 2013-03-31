@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<p>Viewing link</p>
+
+<span><b>Title:</b> {{ link.title }}</span><br>
+<span><b>Url:</b> <a href="{{ link.url }}">{{ link.url }}</a></span><br>
+<span><b>Added:</b> {{ link.datetime() }}</span><br>
+<span><b>Tagged as:</b> 
+	{% for tag in link.tags %}
+	<a href="{{ url_for("list_tag", tag_name=tag) }}">{{ tag }}</a>
+	{% endfor %}
+</span>
+
+{% endblock %}
