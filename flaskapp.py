@@ -3,6 +3,7 @@ import sqlite3
 import urlparse
 import time
 
+import feedformatter
 from flask import Flask, request, render_template, redirect, url_for
 
 from modtasty import ModTasty
@@ -62,6 +63,18 @@ def list_tags():
 def list_tag(tag_name):
     links = mt.get_links_by_tag_name(tag_name)
     return render_template("tag_list.html", links=links, tag=tag_name)
+
+@app.route('/feed')
+def feed():
+    feed = feedformatter.Feed()
+    feed.feed["author"] = "Moderately Tasty"
+    for link in mt.get_latest_links():
+        item = {}
+        item["title"] = link.title
+        item["link"] = link.url
+        item["pubdate"] = link.created
+        feed.items.append(item)
+    return feed.format_atom_string()
 
 if __name__ == '__main__':
     app.run(debug=True)
