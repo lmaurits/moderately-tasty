@@ -19,18 +19,26 @@ class Link():
         self.tags = []
 
     def datetime(self):
+        "Return a string containing the nicely formatted time a link was first svaed."
         return time.strftime("%d %b %Y", time.gmtime(self.created))
 
     def domain(self):
+        "Return a string containing the domain of a link's URL."
         return urlparse.urlparse(self.url).netloc
 
     def prettytitle(self):
+        "Return a nice-looking string to act as a link's title."
         if self.title:
             return self.title
         else:
             return "Untitled (%s)" % self.url
 
 def db_access(f):
+    "A function wrapper which opens/closes the SQLite database as necessary."
+    # Why  not just set up self.con and self.cur once at instantiation and
+    # leave it at that?  Because connections/cursors can only be used from
+    # the thread they are created in, and each HTTP request gets its own
+    # thread, so we need to open/close the DB connection each time...
     @functools.wraps(f)
     def decorated(self, *args, **kwargs):
         already_open = self.db_open
@@ -51,18 +59,24 @@ class ModTasty():
 
     def __init__(self):
 
+        self.con = None
+        self.cur = None
         self.db_open = False
-        self.initialise_db()
+        # Store some configuration options
         self.username = config.username
         self.password = config.password
         self.email_errors = config.email_errors
         self.admin_email = config.admin_email
+        # Set up database
+        self.initialise_db()
 
     def check_auth(self, username, password):
+        "Check that provided credentials match those in the config file."
         return username == self.username and password == self.password
 
     @db_access
     def initialise_db(self):
+        "Create database tables if they don't already exist."
 
         self.cur.execute("""CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY ASC,
@@ -85,6 +99,8 @@ class ModTasty():
 
 
     def make_link_from_table_row(self, row):
+        "Build a Link object from a list returned from a database cursor fetch method."
+
         link = Link()
         link.id = row[0]
         link.title = row[1]
@@ -93,6 +109,8 @@ class ModTasty():
         return link
 
     def make_link_from_url(self, url):
+        "Use a URL to instantiate a Link object, setting the url and title fields."
+
         link = Link(url=url)
         r = requests.get(url)
         s = BeautifulSoup(r.text)
@@ -101,6 +119,8 @@ class ModTasty():
 
     @db_access
     def save_link(self, link):
+        "Save a Link object to the database, via INSERT or UPDATE as necessary"
+
         if not link.created:
             link.created = time.time()
         if link.id:
@@ -126,6 +146,8 @@ class ModTasty():
 
     @db_access
     def get_link_by_id(self, id):
+        "Return a Link object corresponding to an id in the database link table."
+        
         self.cur.execute("""SELECT * FROM links WHERE id=?""", (id, ))
         link = self.make_link_from_table_row(self.cur.fetchone())
         self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
@@ -138,25 +160,28 @@ class ModTasty():
 
     @db_access
     def delete_link_by_id(self, id):
+        "Delete the link with the given id from the database."
         self.cur.execute("""DELETE FROM links WHERE id=?""", (id, ))
         self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
         tag_ids = self.cur.fetchall()
         self.cur.execute("""DELETE FROM link_tag_connections WHERE link_id=?""", (id, ))
+        # Delete any tags for which this link was the last link tagged as such
         for tag_id in tag_ids:
             self.cur.execute("""SELECT COUNT(tag_id) FROM link_tag_connections WHERE tag_id=?""", (tag_id[0], ))
             count = self.cur.fetchone()[0]
             if count is 0:
-                # We just deleted the last link with this tag, so kill the tag
                 self.cur.execute("""DELETE FROM tags WHERE id=?""", (tag_id[0], ))
 
     @db_access
     def get_latest_links(self):
+        "Return a list of the most recently created Link objects."
         self.cur.execute("""SELECT id FROM links ORDER BY created DESC LIMIT 20""")
         links = [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
         return links
 
     @db_access
     def get_all_tags_and_counts(self):
+        "Return a list of all tags in the database, and a list of the number of links with each tag."
         self.cur.execute("""SELECT tags.name, COUNT(tags.id)  FROM tags INNER JOIN link_tag_connections ON tags.id = link_tag_connections.tag_id GROUP BY tags.id ORDER BY COUNT(tags.id) DESC""")
         tc = self.cur.fetchall()
         tags = [t[0] for t in tc]
@@ -165,6 +190,8 @@ class ModTasty():
        
     @db_access
     def get_links_by_tag_name(self, tag_name):
+        "Return a list of all Link objects which have the specified tag"
+
         self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag_name,))
         tag_id = self.cur.fetchall()
         if not tag_id:

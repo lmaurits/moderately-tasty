@@ -12,15 +12,6 @@ from modtasty import ModTasty
 app = Flask(__name__)
 mt = ModTasty()
 
-if mt.email_errors:
-    import logging
-    from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler('127.0.0.1',
-                               'noreply@moderatelytasty.com',
-                               [mt.admin_email], 'Moderately Tasty Failed')
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-
 # Authentication wrapping
 ####################################################################
 
@@ -45,6 +36,7 @@ def requires_auth(f):
 
 @app.route('/')
 def index():
+    "Home page.  Just shows most recently added links."
     links = mt.get_latest_links()
     for link in links:
         print link.tags
@@ -53,6 +45,7 @@ def index():
 @app.route('/add', methods=['GET', 'POST'])
 @requires_auth
 def add_link():
+    "Web form to add a new link."
     if request.method == "GET":
         return render_template("add.html")
     elif request.method == "POST":
@@ -63,12 +56,14 @@ def add_link():
    
 @app.route('/view/<int:link_id>')
 def view_link(link_id):
+    "Page which shows the particulars of a link."
     link = mt.get_link_by_id(link_id)
     return render_template("view.html", link=link)
 
 @app.route('/edit/<int:link_id>', methods=["GET", "POST"])
 @requires_auth
 def edit_link(link_id):
+    "Web form to edit an exisitng link."
     link = mt.get_link_by_id(link_id)
     if request.method == "GET":
         tags, counts = mt.get_all_tags_and_counts()
@@ -82,6 +77,7 @@ def edit_link(link_id):
 @app.route('/del/<int:link_id>', methods=["GET", "POST"])
 @requires_auth
 def delete_link(link_id):
+    "Web form to delete an exisitng link."
     link = mt.get_link_by_id(link_id)
     if request.method == "GET":
         return render_template("delete.html", link=link)
@@ -91,16 +87,19 @@ def delete_link(link_id):
 
 @app.route('/tags')
 def list_tags():
+    "A list of all current tags in the database."
     tags, counts = mt.get_all_tags_and_counts()
     return render_template("all_tags.html", tags_counts=zip(tags, counts))
 
 @app.route('/tag/<tag_name>')
 def list_tag(tag_name):
+    "A list of all links in the database which have a given tag."
     links = mt.get_links_by_tag_name(tag_name)
     return render_template("tag_list.html", links=links, tag=tag_name)
 
 @app.route('/feed')
 def feed():
+    "An Atom feed of the most recently created links."
     feed = feedformatter.Feed()
     feed.feed["author"] = "Moderately Tasty"
     for link in mt.get_latest_links():
@@ -110,6 +109,15 @@ def feed():
         item["pubdate"] = link.created
         feed.items.append(item)
     return feed.format_atom_string()
+
+if mt.email_errors:
+    import logging
+    from logging.handlers import SMTPHandler
+    mail_handler = SMTPHandler('127.0.0.1',
+                               'noreply@moderatelytasty.com',
+                               [mt.admin_email], 'Moderately Tasty Failed')
+    mail_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(mail_handler)
 
 if __name__ == '__main__':
     app.run(debug=True)
