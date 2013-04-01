@@ -137,8 +137,15 @@ class ModTasty():
     @db_access
     def delete_link_by_id(self, id):
         self.cur.execute("""DELETE FROM links WHERE id=?""", (id, ))
+        self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
+        tag_ids = self.cur.fetchall()
         self.cur.execute("""DELETE FROM link_tag_connections WHERE link_id=?""", (id, ))
-        # TODO check if we just deleted the last link for any tag and if so del tag
+        for tag_id in tag_ids:
+            self.cur.execute("""SELECT COUNT(tag_id) FROM link_tag_connections WHERE tag_id=?""", (tag_id[0], ))
+            count = self.cur.fetchone()[0]
+            if count is 0:
+                # We just deleted the last link with this tag, so kill the tag
+                self.cur.execute("""DELETE FROM tags WHERE id=?""", (tag_id[0], ))
 
     @db_access
     def get_latest_links(self):
