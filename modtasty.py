@@ -59,9 +59,7 @@ class ModTasty():
 
     def __init__(self):
 
-        self.con = None
-        self.cur = None
-        self.db_open = False
+        self.con, self.cur, self.db_open = None, None, False
         # Store some configuration options
         self.username = config.username
         self.password = config.password
@@ -100,7 +98,6 @@ class ModTasty():
 
     def make_link_from_url(self, url):
         "Use a URL to instantiate a Link object, setting the url and title fields."
-
         link = Link(url=url)
         r = requests.get(url)
         s = BeautifulSoup(r.text)
@@ -110,7 +107,6 @@ class ModTasty():
     @db_access
     def save_link(self, link):
         "Save a Link object to the database, via INSERT or UPDATE as necessary"
-
         if not link.created:
             link.created = time.time()
         if link.id:
@@ -119,7 +115,6 @@ class ModTasty():
             self.cur.execute("""INSERT INTO links (title, url, created) VALUES (?, ?, ?)""", (link.title, link.url, link.created))
             self.cur.execute("""SELECT id FROM links WHERE url=?""", (link.url,))
             link.id = self.cur.fetchone()[0]
-
         self.cur.execute("""DELETE from link_tag_connections WHERE link_id=?""", (link.id,))
         for tag in link.tags:
             self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag,))
@@ -166,17 +161,15 @@ class ModTasty():
     def get_latest_links(self):
         "Return a list of the most recently created Link objects."
         self.cur.execute("""SELECT id FROM links ORDER BY created DESC LIMIT 20""")
-        links = [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
-        return links
+        return [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
 
     @db_access
     def get_all_tags_and_counts(self):
         "Return a list of all tags in the database, and a list of the number of links with each tag."
         self.cur.execute("""SELECT tags.name, COUNT(tags.id)  FROM tags INNER JOIN link_tag_connections ON tags.id = link_tag_connections.tag_id GROUP BY tags.id ORDER BY COUNT(tags.id) DESC""")
         tc = self.cur.fetchall()
-        tags = [t[0] for t in tc]
-        counts = [t[1] for t in tc]
-        return tags, counts
+        # Unzip two lists...wish there was a less ugly way to do this!
+        return [t[0] for t in tc], [t[1] for t in tc]
        
     @db_access
     def get_links_by_tag_name(self, tag_name):
@@ -187,5 +180,4 @@ class ModTasty():
         if not tag_id:
             return []
         self.cur.execute("""SELECT links.id FROM links INNER JOIN link_tag_connections ON links.id = link_tag_connections.link_id WHERE link_tag_connections.tag_id=? ORDER BY links.created DESC""", (tag_id[0][0],))
-        links = [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
-        return links
+        return [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
