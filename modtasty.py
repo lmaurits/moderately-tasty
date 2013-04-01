@@ -31,10 +31,7 @@ class Link():
 
     def prettytitle(self):
         "Return a nice-looking string to act as a link's title."
-        if self.title:
-            return self.title
-        else:
-            return "Untitled (%s)" % self.url
+        return self.title or ("Untitled (%s)" % self.url)
 
 def db_access(f):
     "A function wrapper which opens/closes the SQLite database as necessary."
