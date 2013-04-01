@@ -5,5 +5,7 @@
 <p>Links tagged with {{tag}}</p>
 
 {% include "link_list.html" %}
+{% else %}
+<p>There are no links tagged with {{tag}}</p>
 {% endif %}
 {% endblock %}
