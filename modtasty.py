@@ -134,7 +134,10 @@ class ModTasty():
         "Return a Link object corresponding to an id in the database link table."
         
         self.cur.execute("""SELECT * FROM links WHERE id=?""", (id, ))
-        link = Link(*self.cur.fetchone())
+        row = self.cur.fetchone()
+        if not row:
+                return None
+        link = Link(*row)
         self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
         for tag_id in self.cur.fetchall():
             tag_id = tag_id[0]

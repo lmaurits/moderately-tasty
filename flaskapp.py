@@ -58,13 +58,18 @@ def add_link():
 def view_link(link_id):
     "Page which shows the particulars of a link."
     link = mt.get_link_by_id(link_id)
-    return render_template("view.html", link=link)
+    if link:
+        return render_template("view.html", link=link)
+    else:
+        return render_template("error404.html", link=link), 404
 
 @app.route('/edit/<int:link_id>', methods=["GET", "POST"])
 @requires_auth
 def edit_link(link_id):
     "Web form to edit an exisitng link."
     link = mt.get_link_by_id(link_id)
+    if not link:
+        return render_template("error404.html", link=link), 404
     if request.method == "GET":
         tags, counts = mt.get_all_tags_and_counts()
         return render_template("edit.html", link=link, tags=tags)
@@ -79,6 +84,8 @@ def edit_link(link_id):
 def delete_link(link_id):
     "Web form to delete an exisitng link."
     link = mt.get_link_by_id(link_id)
+    if not link:
+        return render_template("error404.html", link=link), 404
     if request.method == "GET":
         return render_template("delete.html", link=link)
     elif request.method == "POST":
