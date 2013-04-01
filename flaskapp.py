@@ -12,6 +12,15 @@ from modtasty import ModTasty
 app = Flask(__name__)
 mt = ModTasty()
 
+if mt.email_errors:
+    import logging
+    from logging.handlers import SMTPHandler
+    mail_handler = SMTPHandler('127.0.0.1',
+                               'noreply@moderatelytasty.com',
+                               [mt.admin_email], 'Moderately Tasty Failed')
+    mail_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(mail_handler)
+
 # Authentication wrapping
 ####################################################################
 
@@ -31,6 +40,13 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+def log_errors(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except:
+    return decorated
 # Flask app proper
 ####################################################################
 
