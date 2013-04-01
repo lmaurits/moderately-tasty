@@ -40,13 +40,6 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-def log_errors(f):
-    @functools.wraps(f)
-    def decorated(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except:
-    return decorated
 # Flask app proper
 ####################################################################
 
