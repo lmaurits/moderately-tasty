@@ -55,6 +55,7 @@ class ModTasty():
         self.initialise_db()
         self.username = config.username
         self.password = config.password
+        self.email_errors = config.email_errors
         self.admin_email = config.admin_email
 
     def check_auth(self, username, password):
