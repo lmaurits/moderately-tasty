@@ -7,7 +7,7 @@ import time
 import feedformatter
 from flask import Flask, request, render_template, redirect, url_for, Response
 
-from modtasty import ModTasty
+from modtasty import ModTasty, Link
 
 app = Flask(__name__)
 mt = ModTasty()
@@ -69,7 +69,7 @@ def edit_link(link_id):
         tags, counts = mt.get_all_tags_and_counts()
         return render_template("edit.html", link=link, tags=tags)
     elif request.method == "POST":
-        link = mt.make_link_from_table_row([link.id, request.form["title"], request.form["url"], link.created])
+        link = Link(link.id, request.form["title"], request.form["url"], link.created)
         link.tags = [t.strip().lower() for t in request.form["tags"].split(",")]
         mt.save_link(link)
         return redirect(url_for("view_link", link_id=link.id))

@@ -11,12 +11,15 @@ import config
 
 class Link():
     
-    def __init__(self, title="Untitled", url=None):
-        self.id = None
+    def __init__(self, id=None, title="Untitled", url=None, created=None, tags=None):
+        self.id = id
         self.title = title
         self.url = url
         self.created = None
-        self.tags = []
+        if tags:
+            self.tags = tags
+        else:
+            self.tags = []
 
     def datetime(self):
         "Return a string containing the nicely formatted time a link was first svaed."
@@ -98,16 +101,6 @@ class ModTasty():
                 )""")
 
 
-    def make_link_from_table_row(self, row):
-        "Build a Link object from a list returned from a database cursor fetch method."
-
-        link = Link()
-        link.id = row[0]
-        link.title = row[1]
-        link.url = row[2]
-        link.created = row[3]
-        return link
-
     def make_link_from_url(self, url):
         "Use a URL to instantiate a Link object, setting the url and title fields."
 
@@ -149,7 +142,7 @@ class ModTasty():
         "Return a Link object corresponding to an id in the database link table."
         
         self.cur.execute("""SELECT * FROM links WHERE id=?""", (id, ))
-        link = self.make_link_from_table_row(self.cur.fetchone())
+        link = Link(*self.cur.fetchone())
         self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
         for tag_id in self.cur.fetchall():
             tag_id = tag_id[0]
