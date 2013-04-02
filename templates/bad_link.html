@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Error adding link</h2>
+
+<p>Couldn't fetch the page at <span class="url">{{url}}</a>.  Got the following error:</p>
+
+<span class="fetch_error">{{ strerr }}</span>
+
+<span class="command-button"> <a href="{{ url_for("add_link") }}">try again</a></span>
+<span class="command-button"> <a href="{{ url_for("index") }}">give up</a></span>
+
+{% endblock %}

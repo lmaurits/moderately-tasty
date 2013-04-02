@@ -54,7 +54,10 @@ def add_link():
         link = mt.get_link_by_url(url)
         if link:
             return redirect(url_for("view_link", link_id=link.id))
-        link = mt.make_link_from_url(url)
+        try:
+            link = mt.make_link_from_url(url)
+        except Exception as e:
+            return render_template("bad_link.html", url=url, strerr=str(e))
         mt.save_link(link)
         return redirect(url_for("edit_link", link_id=link.id))
    
