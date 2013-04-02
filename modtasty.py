@@ -1,10 +1,10 @@
 import collections
 import functools
 import sqlite3
+import urllib2
 import urlparse
 import time
 
-import requests
 from BeautifulSoup import BeautifulSoup
 
 import config
@@ -99,8 +99,8 @@ class ModTasty():
     def make_link_from_url(self, url):
         "Use a URL to instantiate a Link object, setting the url and title fields."
         link = Link(url=url)
-        r = requests.get(url)
-        s = BeautifulSoup(r.text)
+        u = urllib2.urlopen(url)
+        s = BeautifulSoup(u.read())
         link.title = s.title.string
         return link
 
