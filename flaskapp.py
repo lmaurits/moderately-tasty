@@ -50,6 +50,10 @@ def add_link():
         return render_template("add.html")
     elif request.method == "POST":
         url = request.form["url"]
+        # Check for duplicates
+        link = mt.get_link_by_url(url)
+        if link:
+            return redirect(url_for("view_link", link_id=link.id))
         link = mt.make_link_from_url(url)
         save_link(link)
         return redirect(url_for("edit_link", link_id=link.id))

@@ -132,7 +132,6 @@ class ModTasty():
     @db_access
     def get_link_by_id(self, id):
         "Return a Link object corresponding to an id in the database link table."
-        
         self.cur.execute("""SELECT * FROM links WHERE id=?""", (id, ))
         row = self.cur.fetchone()
         if not row:
@@ -145,6 +144,15 @@ class ModTasty():
             link.tags.append(self.cur.fetchone()[0])
             link.tags.sort()
         return link
+
+    @db_access
+    def get_link_by_url(self, url):
+        "Return a Link from the database if one exists with the given URL, otherwise return None."
+        self.cur.execute("""SELECT * FROM links WHERE url=?""", (url, ))
+        row = self.cur.fetchone()
+        if row:
+            return Link(*row)
+        return None
 
     @db_access
     def delete_link_by_id(self, id):
