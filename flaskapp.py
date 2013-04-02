@@ -55,7 +55,7 @@ def add_link():
         if link:
             return redirect(url_for("view_link", link_id=link.id))
         link = mt.make_link_from_url(url)
-        save_link(link)
+        mt.save_link(link)
         return redirect(url_for("edit_link", link_id=link.id))
    
 @app.route('/view/<int:link_id>')
