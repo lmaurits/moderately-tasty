@@ -111,6 +111,15 @@ def list_tag(tag_name):
     links = mt.get_links_by_tag_name(tag_name)
     return render_template("tag_list.html", links=links, tag=tag_name)
 
+@app.route('/search')
+def search():
+    "Search links by title."
+    if "q" in request.args:
+        results = mt.search(request.args["q"])
+        return render_template("search.html", searchstring=request.args["q"], links=results)
+    else:
+        return render_template("search.html")
+
 @app.route('/feed')
 def feed():
     "An Atom feed of the most recently created links."

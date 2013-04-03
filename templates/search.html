@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<form action="{{ url_for("search") }}" method="get">
+	<fieldset>
+		<legend>Search links</legend>
+		
+		<label><b>Search</b>
+			<input type="text" name="q" value="{{ searchstring }}">
+		</label>
+	</fieldset>
+	<input class="formbutton" type="submit" value="Search">
+</form>
+
+{% if searchstring %}
+{% if links %}
+<p>Search results for '{{ searchstring }}':</p>
+{% include "link_list.html" %}
+{% else %}
+<p>No results found for '{{ searchstring }}'.</p>
+{% endif %}
+{% else %}
+{% endif %}
+	
+{% endblock %}

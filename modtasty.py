@@ -194,3 +194,10 @@ class ModTasty():
             return []
         self.cur.execute("""SELECT links.id FROM links INNER JOIN link_tag_connections ON links.id = link_tag_connections.link_id WHERE link_tag_connections.tag_id=? ORDER BY links.created DESC""", (tag_id[0][0],))
         return [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
+
+    @db_access
+    def search(self, searchstring):
+        "Return a list Link objects whose title matches the searchstring"
+        self.cur.execute("""SELECT id FROM links WHERE title LIKE ?""", ("%%%s%%" % searchstring,))
+        return [self.get_link_by_id(id[0]) for id in self.cur.fetchall()]
+
