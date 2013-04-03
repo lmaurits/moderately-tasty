@@ -74,7 +74,6 @@ class ModTasty():
     @db_access
     def initialise_db(self):
         "Create database tables if they don't already exist."
-
         self.cur.execute("""CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY ASC,
                 title TEXT,
@@ -106,27 +105,29 @@ class ModTasty():
     @db_access
     def save_link(self, link):
         "Save a Link object to the database, via INSERT or UPDATE as necessary"
-        if not link.created:
-            link.created = time.time()
         if link.id:
+            # Updating an existing link
+            old_tags = self.get_link_by_id(link.id).tags
             self.cur.execute("""UPDATE links SET title=?, url=? WHERE id=?""", (link.title, link.url, link.id))
         else:
+            # Creating a new link
+            link.created = time.time()
             self.cur.execute("""INSERT INTO links (title, url, created) VALUES (?, ?, ?)""", (link.title, link.url, link.created))
-            self.cur.execute("""SELECT id FROM links WHERE url=?""", (link.url,))
-            link.id = self.cur.fetchone()[0]
+            link.id = self.cur.lastrowid
         self.cur.execute("""DELETE from link_tag_connections WHERE link_id=?""", (link.id,))
+        # Save new tags
         for tag in link.tags:
             self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag,))
-            tag_id = self.cur.fetchall()
-            if tag_id:
-                tag_id = tag_id[0][0]
-                self.cur.execute("""INSERT INTO link_tag_connections VALUES (?, ?)""", (link.id, tag_id))
-            else:
+            tag_id = self.cur.fetchone()
+            if not tag_id:
                 self.cur.execute("""INSERT INTO tags (name) VALUES (?)""", (tag, ))
-                self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag, ))
-                tag_id = self.cur.fetchone()[0]
-                self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag, ))
-                self.cur.execute("""INSERT INTO link_tag_connections VALUES (?, ?)""", (link.id, tag_id))
+                tag_id = (self.cur.lastrowid,)
+            self.cur.execute("""INSERT INTO link_tag_connections VALUES (?, ?)""", (link.id, tag_id[0]))
+        # Kill removed tags if they're no longer used by any link
+        for tag in old_tags:
+            if tag not in link.tags:
+                self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag,))
+                self.kill_unused_tag(self.cur.fetchone()[0])
 
     @db_access
     def get_link_by_id(self, id):
@@ -138,8 +139,7 @@ class ModTasty():
         link = Link(*row)
         self.cur.execute("""SELECT tag_id FROM link_tag_connections WHERE link_id=?""", (id, ))
         for tag_id in self.cur.fetchall():
-            tag_id = tag_id[0]
-            self.cur.execute("""SELECT name FROM tags WHERE id=?""", (tag_id, ))
+            self.cur.execute("""SELECT name FROM tags WHERE id=?""", (tag_id[0], ))
             link.tags.append(self.cur.fetchone()[0])
             link.tags.sort()
         return link
@@ -162,10 +162,14 @@ class ModTasty():
         self.cur.execute("""DELETE FROM link_tag_connections WHERE link_id=?""", (id, ))
         # Delete any tags for which this link was the last link tagged as such
         for tag_id in tag_ids:
-            self.cur.execute("""SELECT COUNT(tag_id) FROM link_tag_connections WHERE tag_id=?""", (tag_id[0], ))
-            count = self.cur.fetchone()[0]
-            if count is 0:
-                self.cur.execute("""DELETE FROM tags WHERE id=?""", (tag_id[0], ))
+            self.kill_unused_tag(tag_id)
+
+    @db_access
+    def kill_unused_tag(self, tag_id):
+        "Delete a tag if it is not connected to any links."
+        self.cur.execute("""SELECT COUNT(tag_id) FROM link_tag_connections WHERE tag_id=?""", (tag_id, ))
+        if self.cur.fetchone()[0] is 0:
+            self.cur.execute("""DELETE FROM tags WHERE id=?""", (tag_id, ))
 
     @db_access
     def get_latest_links(self):
@@ -184,7 +188,6 @@ class ModTasty():
     @db_access
     def get_links_by_tag_name(self, tag_name):
         "Return a list of all Link objects which have the specified tag"
-
         self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag_name,))
         tag_id = self.cur.fetchall()
         if not tag_id:
