@@ -1,4 +1,3 @@
-import collections
 import functools
 import sqlite3
 import urllib2
