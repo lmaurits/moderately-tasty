@@ -15,7 +15,7 @@ class Link():
         self.id = id
         self.title = title
         self.url = url
-        self.created = None
+        self.created = created
         if tags:
             self.tags = tags
         else:
