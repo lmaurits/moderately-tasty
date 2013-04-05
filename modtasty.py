@@ -6,8 +6,6 @@ import time
 
 from BeautifulSoup import BeautifulSoup
 
-import config
-
 class Link():
     
     def __init__(self, id=None, title="Untitled", url=None, created=None, tags=None):
@@ -59,12 +57,6 @@ class ModTasty():
     def __init__(self):
 
         self.con, self.cur, self.db_open = None, None, False
-        # Store some configuration options
-        self.username = config.username
-        self.password = config.password
-        self.email_errors = config.email_errors
-        self.admin_email = config.admin_email
-        # Set up database
         self.initialise_db()
 
     def check_auth(self, username, password):

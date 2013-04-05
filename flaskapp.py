@@ -1,5 +1,6 @@
 import collections
 import functools
+import os.path
 import sqlite3
 import urlparse
 import time
@@ -12,6 +13,19 @@ from modtasty import ModTasty, Link
 app = Flask(__name__)
 mt = ModTasty()
 
+# Configuration
+####################################################################
+
+class DefaultConfig(object):
+    USERNAME = "modtasty"
+    PASSWORD = "modtasty"
+    PUBLIC_READ = True
+    PUBLIC_WRITE = False
+    PUBLIC_FEED = True
+app.config.from_object(DefaultConfig)
+if os.path.exists("config.py"):
+    app.config.from_object("config")
+
 # Authentication wrapping
 ####################################################################
 
@@ -22,11 +36,14 @@ def authenticate():
     'You have to login with proper credentials', 401,
     {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
+def check_auth(username, password):
+    return username == app.config["USERNAME"] and password == app.config["PASSWORD"]
+
 def requires_auth(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
-        if not auth or not mt.check_auth(auth.username, auth.password):
+        if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
     return decorated
@@ -133,12 +150,13 @@ def feed():
         feed.items.append(item)
     return feed.format_atom_string()
 
-if mt.email_errors:
+if app.config["EMAIL_ERRORS"]:
     import logging
     from logging.handlers import SMTPHandler
     mail_handler = SMTPHandler('127.0.0.1',
                                'noreply@moderatelytasty.com',
-                               [mt.admin_email], 'Moderately Tasty Failed')
+                               [app.config["EMAIL_ERRORS"]],
+                               'Moderately Tasty Failed')
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
 
