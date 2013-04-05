@@ -1,5 +1,5 @@
-USERNAME = "foo"
-PASSWORD = "bar"
+USERNAME = "modtasty"
+PASSWORD = "modtasty"
 PUBLIC_READ = True
 PUBLIC_WRITE = False
 PUBLIC_FEED = True
