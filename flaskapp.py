@@ -176,7 +176,7 @@ if app.config["EMAIL_ERRORS"]:
     from logging.handlers import SMTPHandler
     mail_handler = SMTPHandler('127.0.0.1',
                                'noreply@moderatelytasty.com',
-                               [app.config["EMAIL_ERRORS"]],
+                               [app.config["ADMIN_EMAIL"]],
                                'Moderately Tasty Failed')
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
