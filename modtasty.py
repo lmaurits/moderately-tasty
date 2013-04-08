@@ -97,12 +97,14 @@ class ModTasty():
     @db_access
     def save_link(self, link):
         "Save a Link object to the database, via INSERT or UPDATE as necessary"
+        old = True
         if link.id:
             # Updating an existing link
             old_tags = self.get_link_by_id(link.id).tags
             self.cur.execute("""UPDATE links SET title=?, url=? WHERE id=?""", (link.title, link.url, link.id))
         else:
             # Creating a new link
+            old = False
             link.created = time.time()
             self.cur.execute("""INSERT INTO links (title, url, created) VALUES (?, ?, ?)""", (link.title, link.url, link.created))
             link.id = self.cur.lastrowid
@@ -116,10 +118,11 @@ class ModTasty():
                 tag_id = (self.cur.lastrowid,)
             self.cur.execute("""INSERT INTO link_tag_connections VALUES (?, ?)""", (link.id, tag_id[0]))
         # Kill removed tags if they're no longer used by any link
-        for tag in old_tags:
-            if tag not in link.tags:
-                self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag,))
-                self.kill_unused_tag(self.cur.fetchone()[0])
+        if old:
+            for tag in old_tags:
+                if tag not in link.tags:
+                    self.cur.execute("""SELECT id FROM tags WHERE name=?""", (tag,))
+                    self.kill_unused_tag(self.cur.fetchone()[0])
 
     @db_access
     def get_link_by_id(self, id):
