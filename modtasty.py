@@ -91,7 +91,7 @@ class ModTasty():
         link = Link(url=url)
         u = urllib2.urlopen(url)
         s = BeautifulSoup(u.read())
-        link.title = s.title.string
+        link.title = s.title.string if s.title else "Untitled"
         return link
 
     @db_access
